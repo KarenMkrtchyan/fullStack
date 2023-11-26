@@ -22,14 +22,16 @@ const App = () => {
 		const copy = points.slice();
 		copy[selected] += 1;
 		setPoints(copy);
+		let maxIndex = 0;
 		let max = 0;
-		for (let i = 0; i < points.length; i++) {
-			if (points[i] > max) {
-				max = i;
+		for (let i = 0; i < copy.length; i++) {
+			if (copy[i] > max) {
+				max = copy[i];
+				maxIndex = i;
 			}
 		}
-		setMostVotes(max);
-		console.log(anecdotes[mostVotes]);
+		setMostVotes(maxIndex);
+		console.log(copy);
 	};
 
 	return (
