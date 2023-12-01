@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Filter = ({ handleFilter, filter }) => {
 	return (
@@ -50,14 +51,34 @@ const PersonForm = ({
 	);
 };
 
+const PeopleNumber = ({ filteredName }) => {
+	return (
+		<>
+			{filteredName.map((person) => {
+				console.log(person);
+				return (
+					<div key={person.name}>
+						{person.name} {person.number}
+					</div>
+				);
+			})}
+		</>
+	);
+};
+
 const App = () => {
-	const [persons, setPersons] = useState([
-		{ name: "Arto Hellas", number: "39-44-12341" },
-	]);
+	const [persons, setPersons] = useState([{}]);
 	const [newName, setNewName] = useState("");
 	const [newNumber, setNewNumber] = useState("");
 	const [filter, setFilter] = useState("");
 	const [filteredName, setFilteredNames] = useState(persons);
+
+	useEffect(() => {
+		axios.get("http://localhost:3001/persons").then((response) => {
+			//console.log(response.data);
+			setPersons(response.data);
+		});
+	}, []);
 
 	const addPerson = (event) => {
 		event.preventDefault();
@@ -100,13 +121,7 @@ const App = () => {
 				addPerson={addPerson}
 			/>
 			<h2>Numbers</h2>
-			{filteredName.map((person) => {
-				return (
-					<div key={person.name}>
-						{person.name} {person.number}
-					</div>
-				);
-			})}
+			<PeopleNumber filteredName={filteredName} />
 		</div>
 	);
 };
