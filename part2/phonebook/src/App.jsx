@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import server from "./services/addPerson";
 
 const Filter = ({ handleFilter, filter }) => {
 	return (
@@ -74,9 +75,9 @@ const App = () => {
 	const [filteredName, setFilteredNames] = useState(persons);
 
 	useEffect(() => {
-		axios.get("http://localhost:3001/persons").then((response) => {
-			//console.log(response.data);
-			setPersons(response.data);
+		server.fetchAll((names) => {
+			setPersons(names);
+			setFilteredNames(names);
 		});
 	}, []);
 
