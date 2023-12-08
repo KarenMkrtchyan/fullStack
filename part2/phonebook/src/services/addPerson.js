@@ -3,7 +3,10 @@ const baseUrl = "http://localhost:3001/persons";
 
 const fetchAll = () => {
 	const people = axios.get(baseUrl);
-	return people.then((response) => response.data);
+	return people.then((response) => {
+		//console.log(response);
+		return response.data;
+	});
 };
 
 const addPerson = (person) => {

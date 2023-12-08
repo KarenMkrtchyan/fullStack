@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import server from "./services/addPerson";
+import axios from "axios";
 
 const Filter = ({ handleFilter, filter }) => {
 	return (
@@ -53,17 +53,16 @@ const PersonForm = ({
 };
 
 const PeopleNumber = ({ filteredName }) => {
+	//console.log(filteredName);
 	return (
-		<>
-			{filteredName.map((person) => {
-				console.log(person);
-				return (
-					<div key={person.name}>
-						{person.name} {person.number}
-					</div>
-				);
-			})}
-		</>
+		<ul>
+			{filteredName.map((person) => (
+				//console.log(person);
+				<li key={person.name}>
+					{person.name} {person.number}
+				</li>
+			))}
+		</ul>
 	);
 };
 
@@ -75,9 +74,9 @@ const App = () => {
 	const [filteredName, setFilteredNames] = useState(persons);
 
 	useEffect(() => {
-		server.fetchAll((names) => {
-			setPersons(names);
-			setFilteredNames(names);
+		server.fetchAll().then((response) => {
+			setPersons(response);
+			setFilteredNames(response);
 		});
 	}, []);
 
@@ -87,16 +86,26 @@ const App = () => {
 		const repeat = persons.filter((person) => {
 			return person.name === newName;
 		});
-		console.log(repeat);
+		//console.log(repeat);
 		if (repeat.length > 0) {
 			alert(`${newName} is already added to phonebook`);
 			return false;
 		}
-		setPersons(persons.concat({ name: newName, number: newNumber }));
-		setFilter("");
-		setNewName("");
-		setNewNumber("");
-		setFilteredNames(persons.concat({ name: newName, number: newNumber }));
+
+		//setFilteredNames(persons.concat({ name: newName, number: newNumber }));
+		server
+			.addPerson({
+				name: newName,
+				number: newNumber,
+			})
+			.then((returnedPersons) => {
+				console.log(returnedPersons);
+				setPersons(persons.concat(returnedPersons));
+				setFilteredNames(persons.concat(returnedPersons));
+				setFilter("");
+				setNewName("");
+				setNewNumber("");
+			});
 	};
 
 	const handleFilter = (event) => {
@@ -106,7 +115,7 @@ const App = () => {
 		const filtered = persons.filter((person) => {
 			return person.name.toLowerCase().includes(newFilter);
 		});
-		console.log(filtered);
+		//console.log(filtered);
 		setFilteredNames(filtered);
 	};
 
