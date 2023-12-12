@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import server from "./services/addPerson";
-import axios from "axios";
 
 const Filter = ({ handleFilter, filter }) => {
 	return (
@@ -57,8 +56,11 @@ const PeopleNumberList = ({ filteredName, deletePerson }) => {
 	return (
 		<ul>
 			{filteredName.map((person) => (
-				//console.log(person);
-				<PersonNumber person={person} deletePerson={deletePerson} />
+				<PersonNumber
+					key={person.name}
+					person={person}
+					deletePerson={deletePerson}
+				/>
 			))}
 		</ul>
 	);
@@ -66,9 +68,9 @@ const PeopleNumberList = ({ filteredName, deletePerson }) => {
 
 const PersonNumber = ({ person, deletePerson }) => {
 	return (
-		<li key={person.name}>
+		<li>
 			{person.name} {person.number}
-			<button onClick={deletePerson}>Delete</button>
+			<button onClick={() => deletePerson(person)}>Delete</button>
 		</li>
 	);
 };
@@ -87,20 +89,46 @@ const App = () => {
 		});
 	}, []);
 
-	const deletePerson = (id) => {
-		
+	const deletePerson = (person) => {
+		server.deletePerson(person).then(() => {
+			setPersons(persons.filter((p) => p.id !== person.id));
+			setFilteredNames(persons.filter((p) => p.id !== person.id));
+		});
 	};
+
+	// const updatePerson = (person) => {
+	// 	server.updatePerson(person, newName).then(() => {
+	// 		//setPersons(persons.filter((p) => p.id !== person.id));
+	// 		//setFilteredNames(persons.filter((p) => p.id !== person.id));
+	// 	});
+	// };
 
 	const addPerson = (event) => {
 		event.preventDefault();
-
 		const repeat = persons.filter((person) => {
 			return person.name === newName;
 		});
-		//console.log(repeat);
 		if (repeat.length > 0) {
-			alert(`${newName} is already added to phonebook`);
-			return false;
+			if (
+				confirm(
+					`${newName} is already added to phonebook, replace the old number with a new one?`
+				)
+			) {
+				const personBeingChanged = persons.find(
+					(person) => person.name === newName
+				);
+				console.log(`updating ${personBeingChanged.name}`);
+				server.updatePerson(personBeingChanged, newNumber).then((response) => {
+					console.log(response);
+					const newList = persons.map((person) => {
+						return person.name === newName ? response : person;
+					});
+					console.log(newList);
+					setPersons(newList);
+					setFilteredNames(newList);
+				});
+			}
+			return 0;
 		}
 
 		//setFilteredNames(persons.concat({ name: newName, number: newNumber }));
