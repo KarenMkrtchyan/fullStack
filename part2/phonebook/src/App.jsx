@@ -52,17 +52,24 @@ const PersonForm = ({
 	);
 };
 
-const PeopleNumber = ({ filteredName }) => {
+const PeopleNumberList = ({ filteredName, deletePerson }) => {
 	//console.log(filteredName);
 	return (
 		<ul>
 			{filteredName.map((person) => (
 				//console.log(person);
-				<li key={person.name}>
-					{person.name} {person.number}
-				</li>
+				<PersonNumber person={person} deletePerson={deletePerson} />
 			))}
 		</ul>
+	);
+};
+
+const PersonNumber = ({ person, deletePerson }) => {
+	return (
+		<li key={person.name}>
+			{person.name} {person.number}
+			<button onClick={deletePerson}>Delete</button>
+		</li>
 	);
 };
 
@@ -79,6 +86,10 @@ const App = () => {
 			setFilteredNames(response);
 		});
 	}, []);
+
+	const deletePerson = (id) => {
+		
+	};
 
 	const addPerson = (event) => {
 		event.preventDefault();
@@ -131,7 +142,10 @@ const App = () => {
 				addPerson={addPerson}
 			/>
 			<h2>Numbers</h2>
-			<PeopleNumber filteredName={filteredName} />
+			<PeopleNumberList
+				filteredName={filteredName}
+				deletePerson={deletePerson}
+			/>
 		</div>
 	);
 };

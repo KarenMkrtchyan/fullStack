@@ -14,4 +14,8 @@ const addPerson = (person) => {
 	return request.then((response) => response.data);
 };
 
+const deletePerson = (person) => {
+	const request = axios.delete(baseUrl);
+};
+
 export default { fetchAll, addPerson };
