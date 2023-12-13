@@ -14,6 +14,13 @@ const Filter = ({ handleFilter, filter }) => {
 	);
 };
 
+const Notification = ({ message, styleClass }) => {
+	if (message !== null) {
+		return <div className={styleClass}>{message}</div>;
+	}
+	return <></>;
+};
+
 const PersonForm = ({
 	newName,
 	setNewName,
@@ -81,6 +88,8 @@ const App = () => {
 	const [newNumber, setNewNumber] = useState("");
 	const [filter, setFilter] = useState("");
 	const [filteredName, setFilteredNames] = useState(persons);
+	const [message, setMessage] = useState(null);
+	const [notificationStyle, setNotificationStyle] = useState(null);
 
 	useEffect(() => {
 		server.fetchAll().then((response) => {
@@ -90,18 +99,32 @@ const App = () => {
 	}, []);
 
 	const deletePerson = (person) => {
-		server.deletePerson(person).then(() => {
-			setPersons(persons.filter((p) => p.id !== person.id));
-			setFilteredNames(persons.filter((p) => p.id !== person.id));
-		});
+		server
+			.deletePerson(person)
+			.then(() => {
+				setPersons(persons.filter((p) => p.id !== person.id));
+				setFilteredNames(persons.filter((p) => p.id !== person.id));
+				setMessage(`${person.name} was sucessfully deleted`);
+				setNotificationStyle("delete");
+				setTimeout(() => {
+					setMessage(null);
+				}, 5000);
+			})
+			.catch((error) => {
+				setMessage(`${person.name} has already been deleted`);
+				setNotificationStyle("error");
+				setFilter("");
+				setNewName("");
+				setNewNumber("");
+				server.fetchAll().then((response) => {
+					setPersons(response);
+					setFilteredNames(response);
+				});
+				setTimeout(() => {
+					setMessage(null);
+				}, 5000);
+			});
 	};
-
-	// const updatePerson = (person) => {
-	// 	server.updatePerson(person, newName).then(() => {
-	// 		//setPersons(persons.filter((p) => p.id !== person.id));
-	// 		//setFilteredNames(persons.filter((p) => p.id !== person.id));
-	// 	});
-	// };
 
 	const addPerson = (event) => {
 		event.preventDefault();
@@ -127,11 +150,15 @@ const App = () => {
 					setPersons(newList);
 					setFilteredNames(newList);
 				});
+				setMessage(`${person.name} was sucessfully updated`);
+				setNotificationStyle("success");
+				setTimeout(() => {
+					setMessage(null);
+				}, 5000);
 			}
 			return 0;
 		}
 
-		//setFilteredNames(persons.concat({ name: newName, number: newNumber }));
 		server
 			.addPerson({
 				name: newName,
@@ -144,6 +171,11 @@ const App = () => {
 				setFilter("");
 				setNewName("");
 				setNewNumber("");
+				setMessage(`${newName} was sucessfully created`);
+				setNotificationStyle("success");
+				setTimeout(() => {
+					setMessage(null);
+				}, 5000);
 			});
 	};
 
@@ -161,6 +193,7 @@ const App = () => {
 	return (
 		<div>
 			<h2>Phonebook</h2>
+			<Notification message={message} styleClass={notificationStyle} />
 			<Filter handleFilter={handleFilter} filter={filter} />
 			<PersonForm
 				newName={newName}

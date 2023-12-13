@@ -1,0 +1,33 @@
+body {
+	background-color: black;
+	color: white;
+}
+h1 {
+	color: whitesmoke;
+	font-size: 3rem;
+}
+.note {
+	color: white;
+	padding-top: 3px;
+	font-size: 1.3rem;
+}
+button {
+	margin-left: 10px;
+	padding: 5px 10px;
+}
+input {
+	background-color: black;
+	border: solid white 1px;
+	border-radius: 5px;
+	padding: 5px 10px;
+	color: white;
+}
+.error {
+	color: red;
+	background: lightgrey;
+	font-size: 20px;
+	border-style: solid;
+	border-radius: 5px;
+	padding: 10px;
+	margin-bottom: 10px;
+}
