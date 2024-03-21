@@ -62,16 +62,13 @@ const PeopleNumberList = ({ filteredName, deletePerson }) => {
 	//console.log(filteredName);
 	return (
 		<ul>
-			{filteredName.map((person) => {
-				//console.log(person.name);
-				return (
-					<PersonNumber
-						key={person.name}
-						person={person}
-						deletePerson={deletePerson}
-					/>
-				);
-			})}
+			{filteredName.map((person) => (
+				<PersonNumber
+					key={person.id}
+					person={person}
+					deletePerson={deletePerson}
+				/>
+			))}
 		</ul>
 	);
 };
@@ -102,6 +99,7 @@ const App = () => {
 	}, []);
 
 	const deletePerson = (person) => {
+		console.log(person);
 		server
 			.deletePerson(person)
 			.then(() => {
@@ -130,8 +128,10 @@ const App = () => {
 	};
 
 	const addPerson = (event) => {
-		console.log("Calling addPerson");
+		//console.log("Calling addPerson");
 		event.preventDefault();
+
+		//Updateing an existing person
 		const repeat = persons.filter((person) => {
 			return person.name === newName;
 		});
@@ -144,42 +144,60 @@ const App = () => {
 				const personBeingChanged = persons.find(
 					(person) => person.name === newName
 				);
-				console.log(personBeingChanged);
-				server.updatePerson(personBeingChanged, newNumber).then((response) => {
-					console.log(response);
-					const newList = persons.map((person) => {
-						return person.name === newName ? response : person;
+				server
+					.updatePerson(personBeingChanged, newNumber)
+					.then((response) => {
+						server.fetchAll().then((response) => {
+							setPersons(response);
+							setFilteredNames(response);
+							setMessage(`${newName} was sucessfully updated`);
+							setNotificationStyle("success");
+							setTimeout(() => {
+								setMessage(null);
+							}, 5000);
+						});
+					})
+					.catch((e) => {
+						console.log(e.message);
+						setMessage(`${newName} was not updated`);
+						setNotificationStyle("error");
+						setTimeout(() => {
+							setMessage(null);
+						}, 5000);
 					});
-					console.log(newList);
-					setPersons(newList);
-					setFilteredNames(newList);
-					setMessage(`${newName} was sucessfully updated`);
+			}
+			return 0;
+		}
+
+		//Addiing a brand new person
+		const newPerson = {
+			name: newName,
+			number: newNumber,
+		};
+		server
+			.addPerson(newPerson)
+			.then(() => {
+				server.fetchAll().then((response) => {
+					setPersons(response);
+					setFilteredNames(response);
+					setFilter("");
+					setNewName("");
+					setNewNumber("");
+					setMessage(`${newName} was sucessfully created`);
 					setNotificationStyle("success");
 					setTimeout(() => {
 						setMessage(null);
 					}, 5000);
 				});
-			}
-			return 0;
-		}
-
-		const newPerson = {
-			name: newName,
-			number: newNumber,
-		};
-		server.addPerson(newPerson).then((returnedPersons) => {
-			console.log(returnedPersons);
-			setPersons(persons.concat(newPerson));
-			setFilteredNames(persons.concat(newPerson));
-			setFilter("");
-			setNewName("");
-			setNewNumber("");
-			setMessage(`${newName} was sucessfully created`);
-			setNotificationStyle("success");
-			setTimeout(() => {
-				setMessage(null);
-			}, 5000);
-		});
+			})
+			.catch((error) => {
+				console.log(error);
+				setMessage(error.response.data.error);
+				setNotificationStyle("error");
+				setTimeout(() => {
+					setMessage(null);
+				}, 5000);
+			});
 	};
 
 	const handleFilter = (event) => {

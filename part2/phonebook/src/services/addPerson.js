@@ -11,7 +11,7 @@ const fetchAll = () => {
 
 const addPerson = (person) => {
 	const request = axios.post(baseUrl, person);
-	console.log(person);
+	console.log("Add Person", person);
 	return request.then((response) => response.data);
 };
 
