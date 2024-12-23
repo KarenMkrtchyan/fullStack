@@ -1,25 +1,25 @@
-import { useState, useEffect } from "react";
-import server from "./services/addPerson";
+import { useState, useEffect } from 'react'
+import server from './services/addPerson'
 
 const Filter = ({ handleFilter, filter }) => {
 	return (
 		<div>
-			filter shown with{" "}
+			filter shown with{' '}
 			<input
-				onChange={(event) => handleFilter(event)}
+				onChange={event => handleFilter(event)}
 				value={filter}
 				type="text"
 			/>
 		</div>
-	);
-};
+	)
+}
 
 const Notification = ({ message, styleClass }) => {
 	if (message !== null) {
-		return <div className={styleClass}>{message}</div>;
+		return <div className={styleClass}>{message}</div>
 	}
-	return <></>;
-};
+	return <></>
+}
 
 const PersonForm = ({
 	newName,
@@ -30,48 +30,51 @@ const PersonForm = ({
 }) => {
 	return (
 		<form>
-			<h2>Add a new</h2>
+			<h2>Add a new contact</h2>
 			<div>
-				name:{" "}
+				name:{' '}
 				<input
 					value={newName}
-					onChange={(event) => {
-						setNewName(event.target.value);
+					onChange={event => {
+						setNewName(event.target.value)
 					}}
 				/>
 			</div>
 			<div>
-				number:{" "}
+				number:{' '}
 				<input
 					value={newNumber}
-					onChange={(event) => {
-						setNewNumber(event.target.value);
+					onChange={event => {
+						setNewNumber(event.target.value)
 					}}
 				/>
 			</div>
 			<div>
-				<button onClick={(event) => addPerson(event)} type="submit">
+				<button onClick={event => addPerson(event)} type="submit">
 					add
 				</button>
 			</div>
 		</form>
-	);
-};
+	)
+}
 
 const PeopleNumberList = ({ filteredName, deletePerson }) => {
 	//console.log(filteredName);
 	return (
-		<ul>
-			{filteredName.map((person) => (
-				<PersonNumber
-					key={person.id}
-					person={person}
-					deletePerson={deletePerson}
-				/>
-			))}
-		</ul>
-	);
-};
+		<div>
+			<h2>Contacts</h2>
+			<ul>
+				{filteredName.map(person => (
+					<PersonNumber
+						key={person.id}
+						person={person}
+						deletePerson={deletePerson}
+					/>
+				))}
+			</ul>
+		</div>
+	)
+}
 
 const PersonNumber = ({ person, deletePerson }) => {
 	return (
@@ -79,62 +82,62 @@ const PersonNumber = ({ person, deletePerson }) => {
 			{person.name} {person.number}
 			<button onClick={() => deletePerson(person)}>Delete</button>
 		</li>
-	);
-};
+	)
+}
 
 const App = () => {
-	const [persons, setPersons] = useState([{}]);
-	const [newName, setNewName] = useState("");
-	const [newNumber, setNewNumber] = useState("");
-	const [filter, setFilter] = useState("");
-	const [filteredName, setFilteredNames] = useState(persons);
-	const [message, setMessage] = useState(null);
-	const [notificationStyle, setNotificationStyle] = useState(null);
+	const [persons, setPersons] = useState([{}])
+	const [newName, setNewName] = useState('')
+	const [newNumber, setNewNumber] = useState('')
+	const [filter, setFilter] = useState('')
+	const [filteredName, setFilteredNames] = useState(persons)
+	const [message, setMessage] = useState(null)
+	const [notificationStyle, setNotificationStyle] = useState(null)
 
 	useEffect(() => {
-		server.fetchAll().then((response) => {
-			setPersons(response);
-			setFilteredNames(response);
-		});
-	}, []);
+		server.fetchAll().then(response => {
+			setPersons(response)
+			setFilteredNames(response)
+		})
+	}, [])
 
-	const deletePerson = (person) => {
-		console.log(person);
+	const deletePerson = person => {
+		console.log(person)
 		server
 			.deletePerson(person)
 			.then(() => {
-				setPersons(persons.filter((p) => p.id !== person.id));
-				setFilteredNames(persons.filter((p) => p.id !== person.id));
-				setMessage(`${person.name} was sucessfully deleted`);
-				setNotificationStyle("delete");
+				setPersons(persons.filter(p => p.id !== person.id))
+				setFilteredNames(persons.filter(p => p.id !== person.id))
+				setMessage(`${person.name} was sucessfully deleted`)
+				setNotificationStyle('delete')
 				setTimeout(() => {
-					setMessage(null);
-				}, 5000);
+					setMessage(null)
+				}, 5000)
 			})
-			.catch((error) => {
-				setMessage(`${person.name} has already been deleted`);
-				setNotificationStyle("error");
-				setFilter("");
-				setNewName("");
-				setNewNumber("");
-				server.fetchAll().then((response) => {
-					setPersons(response);
-					setFilteredNames(response);
-				});
+			.catch(error => {
+				setMessage(`${person.name} has already been deleted`)
+				setNotificationStyle('error')
+				setFilter('')
+				setNewName('')
+				setNewNumber('')
+				server.fetchAll().then(response => {
+					setPersons(response)
+					setFilteredNames(response)
+				})
 				setTimeout(() => {
-					setMessage(null);
-				}, 5000);
-			});
-	};
+					setMessage(null)
+				}, 5000)
+			})
+	}
 
-	const addPerson = (event) => {
+	const addPerson = event => {
 		//console.log("Calling addPerson");
-		event.preventDefault();
+		event.preventDefault()
 
 		//Updateing an existing person
-		const repeat = persons.filter((person) => {
-			return person.name === newName;
-		});
+		const repeat = persons.filter(person => {
+			return person.name === newName
+		})
 		if (repeat.length > 0) {
 			if (
 				confirm(
@@ -142,74 +145,74 @@ const App = () => {
 				)
 			) {
 				const personBeingChanged = persons.find(
-					(person) => person.name === newName
-				);
+					person => person.name === newName
+				)
 				server
 					.updatePerson(personBeingChanged, newNumber)
-					.then((response) => {
-						server.fetchAll().then((response) => {
-							setPersons(response);
-							setFilteredNames(response);
-							setMessage(`${newName} was sucessfully updated`);
-							setNotificationStyle("success");
+					.then(response => {
+						server.fetchAll().then(response => {
+							setPersons(response)
+							setFilteredNames(response)
+							setMessage(`${newName} was sucessfully updated`)
+							setNotificationStyle('success')
 							setTimeout(() => {
-								setMessage(null);
-							}, 5000);
-						});
+								setMessage(null)
+							}, 5000)
+						})
 					})
-					.catch((e) => {
-						console.log(e.message);
-						setMessage(`${newName} was not updated`);
-						setNotificationStyle("error");
+					.catch(e => {
+						console.log(e.message)
+						setMessage(`${newName} was not updated`)
+						setNotificationStyle('error')
 						setTimeout(() => {
-							setMessage(null);
-						}, 5000);
-					});
+							setMessage(null)
+						}, 5000)
+					})
 			}
-			return 0;
+			return 0
 		}
 
 		//Addiing a brand new person
 		const newPerson = {
 			name: newName,
 			number: newNumber,
-		};
+		}
 		server
 			.addPerson(newPerson)
 			.then(() => {
-				server.fetchAll().then((response) => {
-					setPersons(response);
-					setFilteredNames(response);
-					setFilter("");
-					setNewName("");
-					setNewNumber("");
-					setMessage(`${newName} was sucessfully created`);
-					setNotificationStyle("success");
+				server.fetchAll().then(response => {
+					setPersons(response)
+					setFilteredNames(response)
+					setFilter('')
+					setNewName('')
+					setNewNumber('')
+					setMessage(`${newName} was sucessfully created`)
+					setNotificationStyle('success')
 					setTimeout(() => {
-						setMessage(null);
-					}, 5000);
-				});
+						setMessage(null)
+					}, 5000)
+				})
 			})
-			.catch((error) => {
-				console.log(error);
-				setMessage(error.response.data.error);
-				setNotificationStyle("error");
+			.catch(error => {
+				console.log(error)
+				setMessage(error.response.data.error)
+				setNotificationStyle('error')
 				setTimeout(() => {
-					setMessage(null);
-				}, 5000);
-			});
-	};
+					setMessage(null)
+				}, 5000)
+			})
+	}
 
-	const handleFilter = (event) => {
-		let newFilter = event.target.value;
-		newFilter = newFilter.toLowerCase();
-		setFilter(newFilter);
-		const filtered = persons.filter((person) => {
-			return person.name.toLowerCase().includes(newFilter);
-		});
+	const handleFilter = event => {
+		let newFilter = event.target.value
+		newFilter = newFilter.toLowerCase()
+		setFilter(newFilter)
+		const filtered = persons.filter(person => {
+			return person.name.toLowerCase().includes(newFilter)
+		})
 		//console.log(filtered);
-		setFilteredNames(filtered);
-	};
+		setFilteredNames(filtered)
+	}
 
 	return (
 		<div>
@@ -223,13 +226,13 @@ const App = () => {
 				setNewNumber={setNewNumber}
 				addPerson={addPerson}
 			/>
-			<h2>Numbers</h2>
+
 			<PeopleNumberList
 				filteredName={filteredName}
 				deletePerson={deletePerson}
 			/>
 		</div>
-	);
-};
+	)
+}
 
-export default App;
+export default App
